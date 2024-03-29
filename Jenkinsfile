@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        // Define environment variable to store AWS secret access key
-        AWS_SECRET_ACCESS_KEY = credentials('secret_access_key')
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
     stages {
         stage('Checkout') {
@@ -13,15 +13,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                // Use withCredentials block to securely provide AWS secret access key
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    accessKeyVariable: '',
-                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
-                    credentialsId: 'secret_access_key'
-                ]]) {
-                    sh 'terraform init'
-                }
+                sh 'terraform init'
             }
         }
 
@@ -36,7 +28,7 @@ pipeline {
                 sh 'terraform apply -auto-approve tfplan'
             }
         }
-
+    
         stage('Delay before Destroy') {
             steps {
                 script {
@@ -52,4 +44,5 @@ pipeline {
             }
         }
     }
+   
 }
